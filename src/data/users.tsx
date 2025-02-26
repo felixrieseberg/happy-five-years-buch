@@ -321,7 +321,7 @@ export const users: Record<string, User> = {
 		avatarSrc: sunnyAvatar.src,
 	},
 	austin: {
-		name: "Austin Chen",
+		name: "Austin Louden",
 		id: "austin",
 		avatarSrc: austinAvatar.src,
 	}
