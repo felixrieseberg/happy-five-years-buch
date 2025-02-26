@@ -10,10 +10,21 @@ import { FloatingMenu } from "@/components/FloatingMenu";
 import { useLighting } from "@/context/LightingContext";
 import { useScene } from "@/context/SceneContext";
 
+// Calculate the offset to shift the model to the left
+// This value represents how much we want to shift the model to the left (in world units)
+const MODEL_OFFSET_X = -50; // Increased the offset for more shift to the left
+
+// Fixed offset percentage for the canvas shift
+const CANVAS_OFFSET_PERCENTAGE = 25; // Use a fixed value that works well
+
 function RotatingBuchModel() {
   const modelRef = useRef<THREE.Group>(null);
 
-  return <BuchModel ref={modelRef} scale={.3} />;
+  return (
+    <group position={[MODEL_OFFSET_X, 0, 0]}>
+      <BuchModel ref={modelRef} scale={.3} />
+    </group>
+  );
 }
 
 function SceneEnvironment() {
@@ -61,11 +72,11 @@ function CameraController() {
     const sunY = currentLightingState.sky?.sunPosition?.[1] ?? 1;
     const isNighttime = sunY < 0;
     const basePosition: [number, number, number] = isNighttime
-      ? [40, 25, 40] // Closer and slightly angled for nighttime
-      : [60, 30, 60]; // Further back and angled for daytime
+      ? [40 + MODEL_OFFSET_X, 25, 40] // Adjust X position by the offset
+      : [60 + MODEL_OFFSET_X, 30, 60]; // Adjust X position by the offset
 
     camera.position.set(basePosition[0], basePosition[1], basePosition[2]);
-    camera.lookAt(0, 10, 0);
+    camera.lookAt(MODEL_OFFSET_X, 10, 0); // Look at the offset position
 
     hasSetInitialPosition.current = true;
   }, [camera, currentLightingState]);
@@ -105,34 +116,46 @@ function SceneLighting() {
 
 export function BuchCanvas() {
   return (
-    <div className="h-screen w-full relative">
-      <FloatingMenu />
-      <Suspense>
-        <Canvas
-          className="h-full w-full"
-          gl={{
-            antialias: true,
-            toneMapping: THREE.ACESFilmicToneMapping,
-            toneMappingExposure: 1.2
-          }}
-        >
-          <CameraController />
-          <SceneEnvironment />
-          <SceneLighting />
-          <RotatingBuchModel />
-          <OrbitControls
-            enableZoom={true}
-            enableRotate={true}
-            enablePan={true}
-            maxPolarAngle={Math.PI * 0.45}
-            minDistance={20}
-            maxDistance={100}
-            target={[0, 35, 0]}
-            autoRotate={true}
-            autoRotateSpeed={0.2}
-          />
-        </Canvas>
-      </Suspense>
+    <div className="h-screen w-full relative overflow-hidden">
+      {/* Canvas container with negative margin to extend beyond the viewport */}
+      <div
+        className="h-full w-[calc(100%+400px)] relative" // Increased width to allow for more shift
+        style={{
+          marginLeft: `-${CANVAS_OFFSET_PERCENTAGE}%`,
+        }}
+      >
+        <Suspense>
+          <Canvas
+            className="h-full w-full"
+            gl={{
+              antialias: true,
+              toneMapping: THREE.ACESFilmicToneMapping,
+              toneMappingExposure: 1.2
+            }}
+          >
+            <CameraController />
+            <SceneEnvironment />
+            <SceneLighting />
+            <RotatingBuchModel />
+            <OrbitControls
+              enableZoom={true}
+              enableRotate={true}
+              enablePan={true}
+              maxPolarAngle={Math.PI * 0.45}
+              minDistance={20}
+              maxDistance={100}
+              target={[MODEL_OFFSET_X, 35, 0]} // Adjust the target to match the model's offset
+              autoRotate={true}
+              autoRotateSpeed={0.2}
+            />
+          </Canvas>
+        </Suspense>
+      </div>
+
+      {/* Position the menu absolutely on top of the canvas */}
+      <div className="floating-menu-container absolute top-0 right-0 z-10">
+        <FloatingMenu />
+      </div>
     </div>
   )
 }
