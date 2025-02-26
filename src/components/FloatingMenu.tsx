@@ -38,7 +38,7 @@ export function FloatingMenu() {
 
   return (
     <div className="absolute top-4 right-4 flex flex-col gap-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
-      <FloatingPanel title="Fashion Designer" className="w-96">
+      <FloatingPanel title="Fashion Designer" className="w-96" defaultCollapsed={false}>
         <div className="mb-6">
           <div className="grid grid-cols-2 gap-2">
             {uniqueUsers.map((user: User) => (
@@ -85,7 +85,7 @@ export function FloatingMenu() {
         )}
       </FloatingPanel>
 
-      <FloatingPanel title="Animation" className="w-96">
+      <FloatingPanel title="Animation" className="w-96" defaultCollapsed={true}>
         <div className="grid grid-cols-2 gap-2">
           {Object.entries(ANIMATIONS).map(([key, value]) => (
             <button
@@ -103,7 +103,7 @@ export function FloatingMenu() {
         </div>
       </FloatingPanel>
 
-      <FloatingPanel title="Scene" className="w-96">
+      <FloatingPanel title="Scene" className="w-96" defaultCollapsed={true}>
         <div className="grid grid-cols-2 gap-2">
           {Object.values(SCENES).map((scene) => (
             <button
